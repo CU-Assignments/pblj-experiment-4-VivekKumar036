@@ -1,1 +1,53 @@
- Create a program to collect and store all the cards to assist the users in finding all the cards in a given symbol using Collection interface.
+Create a program to collect and store all the cards to assist the users in finding all the cards in a given symbol using Collection interface.
+
+#Code:
+import java.util.*;
+
+public class CardCollection {
+    public static void main(String[] args) {
+        // Create a HashMap to store cards by symbol
+        Map<String, List<String>> cardDeck = new HashMap<>();
+
+        // Initialize symbols
+        String[] symbols = {"Hearts", "Spades", "Clubs", "Diamonds"};
+
+        // Add all cards for each symbol
+        for (String symbol : symbols) {
+            List<String> cards = new ArrayList<>();
+            for (int i = 1; i <= 13; i++) {
+                String card;
+                if (i == 1) {
+                    card = "Ace";
+                } else if (i == 11) {
+                    card = "Jack";
+                } else if (i == 12) {
+                    card = "Queen";
+                } else if (i == 13) {
+                    card = "King";
+                } else {
+                    card = String.valueOf(i);
+                }
+                cards.add(card + " of " + symbol);
+            }
+            cardDeck.put(symbol, cards);
+        }
+
+        // User interface to find cards by symbol
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a symbol to display all cards (Hearts, Spades, Clubs, Diamonds): ");
+        String inputSymbol = scanner.nextLine();
+
+        // Display the cards for the given symbol
+        if (cardDeck.containsKey(inputSymbol)) {
+            System.out.println("Cards in " + inputSymbol + ":");
+            for (String card : cardDeck.get(inputSymbol)) {
+                System.out.println(card);
+            }
+        } else {
+            System.out.println("Invalid symbol. Please enter a valid symbol (Hearts, Spades, Clubs, Diamonds). ");
+        }
+
+        scanner.close();
+    }
+}
+
