@@ -1,1 +1,78 @@
 Develop a ticket booking system with synchronized threads to ensure no double booking of seats. Use thread priorities to simulate VIP bookings being processed first.
+
+#Code:
+import java.util.*;
+
+class TicketBookingSystem {
+    private static final int TOTAL_SEATS = 10;
+    private final boolean[] seats = new boolean[TOTAL_SEATS]; // false means seat is available
+
+    public synchronized boolean bookSeat(int seatNumber, String customerName) {
+        if (seatNumber < 1 || seatNumber > TOTAL_SEATS) {
+            System.out.println(customerName + " requested an invalid seat number " + seatNumber);
+            return false;
+        }
+
+        if (!seats[seatNumber - 1]) {
+            seats[seatNumber - 1] = true; // Mark seat as booked
+            System.out.println(customerName + " successfully booked seat number " + seatNumber);
+            return true;
+        } else {
+            System.out.println(customerName + " attempted to book an already booked seat: " + seatNumber);
+            return false;
+        }
+    }
+}
+
+class Customer extends Thread {
+    private final TicketBookingSystem bookingSystem;
+    private final int seatNumber;
+    private final String customerName;
+
+    public Customer(TicketBookingSystem bookingSystem, int seatNumber, String customerName, int priority) {
+        this.bookingSystem = bookingSystem;
+        this.seatNumber = seatNumber;
+        this.customerName = customerName;
+        this.setPriority(priority);
+    }
+
+    @Override
+    public void run() {
+        bookingSystem.bookSeat(seatNumber, customerName);
+    }
+}
+
+public class TicketBookingMain {
+    public static void main(String[] args) {
+        TicketBookingSystem bookingSystem = new TicketBookingSystem();
+
+        // VIP customers with higher priorities
+        Customer vip1 = new Customer(bookingSystem, 1, "VIP1", Thread.MAX_PRIORITY);
+        Customer vip2 = new Customer(bookingSystem, 2, "VIP2", Thread.MAX_PRIORITY);
+
+        // Regular customers with normal priority
+        Customer regular1 = new Customer(bookingSystem, 1, "Regular1", Thread.NORM_PRIORITY);
+        Customer regular2 = new Customer(bookingSystem, 2, "Regular2", Thread.NORM_PRIORITY);
+        Customer regular3 = new Customer(bookingSystem, 3, "Regular3", Thread.NORM_PRIORITY);
+
+        // Start all threads
+        vip1.start();
+        vip2.start();
+        regular1.start();
+        regular2.start();
+        regular3.start();
+
+        // Wait for all threads to complete
+        try {
+            vip1.join();
+            vip2.join();
+            regular1.join();
+            regular2.join();
+            regular3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All booking attempts are complete.");
+    }
+}
